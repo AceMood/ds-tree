@@ -1,8 +1,9 @@
 'use strict';
 
-let map;
-let seen = [];  // 是否遍历过
-let stack = []; // 跟踪遍历图的轨迹
+var map;
+var visited = {}; // 是否遍历过
+var currentTracking = {};
+var stack = []; // 跟踪遍历图的路径轨迹
 
 
 /**
@@ -10,40 +11,58 @@ let stack = []; // 跟踪遍历图的轨迹
  * @param vertex
  */
 function checkCircle(vertex) {
-  seen.push(vertex);
+  // 已遍历过以vertex为顶点的子图没有循环依赖
+  if (visited[vertex] === true) {
+    return;
+  }
 
-  // 记录当前之行代码的js文件路径
+  // 记录正在遍历的路径中
+  visited[vertex] = currentTracking;
+
+  // 记录当前顶点的路径
   stack.push(vertex);
-
-  loop(vertex);
-}
-
-function loop(vertex) {
-  // 记录遍历与否
-  if (seen.indexOf(vertex) === -1) {
-    seen.push(vertex);
-  }
-
-  if (stack.indexOf(vertex) >= 0 && stack.length > 1) {
-    stack.push(vertex);
-    // circular dependency
-    console.log(stack);
-    throw 'circular!';
-  }
-
-  if (stack[stack.length - 1] !== vertex)
-    stack.push(vertex);
 
   // loop recursion FIRST
   map[vertex].forEach(function(arc) {
-    loop(arc);
+    if (inCircular(arc)) {
+      process.exit(0);
+    } else {
+      checkCircle(arc);
+    }
   });
 
-  // maintain and sync the paths track stack
+  // maintain the track stack
   stack.pop();
+
+  visited[vertex] = true;
 }
+
+function pick() {
+  var el = stack[stack.length - 1];
+  while (stack[0] != el && stack.length > 1) {
+    stack.shift();
+  }
+
+  console.log(stack);
+}
+
+function inCircular(vertex) {
+  if (visited[vertex] === currentTracking) {
+  // if (stack.indexOf(vertex) > -1) {
+    stack.push(vertex);
+    pick();
+    return true;
+  }
+  return false;
+}
+
 
 exports.checkCircle = checkCircle;
 exports.setTree = function(tree) {
   map = tree;
+};
+exports.reset = function() {
+  map = undefined;
+  stack = [];
+  visited = {};
 };

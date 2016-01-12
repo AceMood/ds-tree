@@ -5,8 +5,8 @@ var checkCircle = circle.checkCircle;
 
 var tree = {
   'a': [],
-  'b': ['a', 'w'],
-  'c': [],
+  'b': ['a'],
+  'c': ['k'],
   'd': ['a', 'b'],
 
 
@@ -15,12 +15,17 @@ var tree = {
   'g': ['a', 'e', 'f', 'd'],
   'h': ['a', 'd', 'e'],
 
-  'w': ['a', 'g', 'd'],
-  'x': ['a', 'w'],
-  'y': ['a', 'x'],
-  'z': ['a', 'y', 'd', 'w', 'x']
+  'i': ['a', 'c'],
+  'j': ['i', 'd'],
+  'k': ['i', 'j', 'b'],
 
+  'w': ['a', 'g', 'd'],
+  'x': ['i', 'w'],
+  'y': ['a', 'x'],
+  'z': ['a', 'y', 'd', 'w', 'x', 'k']
+  // 'z': ['z']
 };
 
+circle.reset();
 circle.setTree(tree);
 checkCircle('z');

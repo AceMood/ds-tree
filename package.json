@@ -1,0 +1,26 @@
+{
+  "name": "ds-tree",
+  "version": "1.0.0",
+  "description": "util function circular dependency",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --timeout 60000 ./test/**/*-Spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AceMood/ds-tree.git"
+  },
+  "keywords": [
+    "circular"
+  ],
+  "author": "AceMood",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AceMood/ds-tree/issues"
+  },
+  "homepage": "https://github.com/AceMood/ds-tree",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
+  }
+}
