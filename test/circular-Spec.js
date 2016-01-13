@@ -30,157 +30,113 @@ describe('Circular', function() {
   var expect = require('chai').expect;
   var circle = require('../lib/circle');
 
-  beforeEach(function() {
-    circle.reset();
-  });
-
-  afterEach(function() {
-    circle.reset();
-  });
-
-  it('should simple dependency', function() {
+  it('should pass simple Topological dependency', function() {
     var tree = {
       'a': [],
       'b': ['a'],
       'c': ['a', 'b']
     };
 
-    circle.setTree(tree);
-    circle.checkCircle('c');
-    var stack = circle.getStack();
+    var stack = [];
+    circle.checkCircle(tree, 'c', {}, stack);
+
+    expect(stack).to.be.a('array');
+    expect(stack).to.have.length(0);
+    expect(stack).to.deep.equal([]);
+  });
+
+  it('should pass complicated Topological dependency', function() {
+    var tree = {
+      'a': [],
+      'b': ['a'],
+      'c': ['a', 'b'],
+      'd': ['a', 'b'],
+
+      'e': ['a'],
+      'f': ['b'],
+      'g': ['a', 'e', 'f', 'd'],
+      'h': ['a', 'd', 'e'],
+
+      'i': ['a', 'c'],
+      'j': ['i', 'd'],
+      'k': ['i', 'j', 'b'],
+
+      'w': ['a', 'g', 'd'],
+      'x': ['i', 'w'],
+      'y': ['a', 'x'],
+      'z': ['a', 'y', 'd', 'w', 'x', 'k']
+    };
+
+    var stack = [];
+    circle.checkCircle(tree, 'z', {}, stack);
+
+    expect(stack).to.be.a('array');
+    expect(stack).to.have.length(0);
+    expect(stack).to.deep.equal([]);
+  });
+
+  it('should detect self reference', function() {
+    var tree = {
+      'a': [],
+      'b': [],
+      'z': ['a', 'z', 'b'],
+      'w': ['z']
+    };
+
+    var stack = [];
+    circle.checkCircle(tree, 'z', {}, stack);
+
+    expect(stack).to.be.a('array');
+    expect(stack).to.have.length(2);
+    expect(stack).to.deep.equal(['z', 'z']);
+  });
+
+  it('should detect simple circular reference', function() {
+    var tree = {
+      'a': [],
+      'b': ['a'],
+      'c': ['b'],
+      'd': ['a', 'b', 'z'],
+      'z': ['c', 'd']
+    };
+
+    var stack = [];
+    circle.checkCircle(tree, 'z', {}, stack);
+
+    expect(stack).to.be.a('array');
+    expect(stack).to.have.length(3);
+    expect(stack).to.deep.equal(['z', 'd', 'z']);
+  });
+
+  it('should detect complicated circular reference', function() {
+    var tree = {
+      'a': [],
+      'b': ['a'],
+      'c': ['k'],
+      'd': ['a', 'b'],
+
+
+      'e': ['a'],
+      'f': ['b'],
+      'g': ['a', 'e', 'f', 'd'],
+      'h': ['a', 'd', 'e'],
+
+      'i': ['a', 'c'],
+      'j': ['i', 'd'],
+      'k': ['i', 'j', 'b'],
+
+      'w': ['a', 'g', 'd'],
+      'x': ['i', 'w'],
+      'y': ['a', 'x'],
+      'z': ['a', 'y', 'd', 'w', 'x', 'k']
+    };
+
+    var stack = [];
+    circle.checkCircle(tree, 'z', {}, stack);
 
     expect(stack).to.be.a('array');
     expect(stack).to.have.length(4);
-    expect(stack).to.deep.eqaul(['c', 'a', 'b', 'a']);
+    expect(stack).to.deep.equal(['k', 'i', 'c', 'k']);
   });
 
-  it('should have a relative path', function() {
-    var tree = {
-      'a': [],
-      'b': ['a'],
-      'c': ['k'],
-      'd': ['a', 'b'],
-
-
-      'e': ['a'],
-      'f': ['b'],
-      'g': ['a', 'e', 'f', 'd'],
-      'h': ['a', 'd', 'e'],
-
-      'i': ['a', 'c'],
-      'j': ['i', 'd'],
-      'k': ['i', 'j', 'b'],
-
-      'w': ['a', 'g', 'd'],
-      'x': ['i', 'w'],
-      'y': ['a', 'x'],
-      'z': ['a', 'y', 'd', 'w', 'x', 'k']
-      // 'z': ['z']
-    };
-
-    circle.reset();
-    circle.setTree(tree);
-    checkCircle('z');
-  });
-
-  it('should have a null id', function() {
-    var tree = {
-      'a': [],
-      'b': ['a'],
-      'c': ['k'],
-      'd': ['a', 'b'],
-
-
-      'e': ['a'],
-      'f': ['b'],
-      'g': ['a', 'e', 'f', 'd'],
-      'h': ['a', 'd', 'e'],
-
-      'i': ['a', 'c'],
-      'j': ['i', 'd'],
-      'k': ['i', 'j', 'b'],
-
-      'w': ['a', 'g', 'd'],
-      'x': ['i', 'w'],
-      'y': ['a', 'x'],
-      'z': ['a', 'y', 'd', 'w', 'x', 'k']
-      // 'z': ['z']
-    };
-
-    circle.reset();
-    circle.setTree(tree);
-    checkCircle('z');
-  });
-
-  it('should can retrieve file content', function() {
-    var tree = {
-      'a': [],
-      'b': ['a'],
-      'c': ['k'],
-      'd': ['a', 'b'],
-
-
-      'e': ['a'],
-      'f': ['b'],
-      'g': ['a', 'e', 'f', 'd'],
-      'h': ['a', 'd', 'e'],
-
-      'i': ['a', 'c'],
-      'j': ['i', 'd'],
-      'k': ['i', 'j', 'b'],
-
-      'w': ['a', 'g', 'd'],
-      'x': ['i', 'w'],
-      'y': ['a', 'x'],
-      'z': ['a', 'y', 'd', 'w', 'x', 'k']
-      // 'z': ['z']
-    };
-
-    circle.reset();
-    circle.setTree(tree);
-    checkCircle('z');
-  });
-
-  it('should can set file content', function() {
-    var tree = {
-      'a': [],
-      'b': ['a'],
-      'c': ['k'],
-      'd': ['a', 'b'],
-
-
-      'e': ['a'],
-      'f': ['b'],
-      'g': ['a', 'e', 'f', 'd'],
-      'h': ['a', 'd', 'e'],
-
-      'i': ['a', 'c'],
-      'j': ['i', 'd'],
-      'k': ['i', 'j', 'b'],
-
-      'w': ['a', 'g', 'd'],
-      'x': ['i', 'w'],
-      'y': ['a', 'x'],
-      'z': ['a', 'y', 'd', 'w', 'x', 'k']
-      // 'z': ['z']
-    };
-
-    circle.reset();
-    circle.setTree(tree);
-    checkCircle('z');
-  });
-
-  it('should flush content to destination', function(done) {
-    var css = new CSS(node_path.join(testData, 'empty.css'));
-    var cssContent = 'html, body { border: 0 }';
-    css.setContent(cssContent);
-
-    var distp = node_path.join(testData, 'dist.css');
-    css.flush(distp, function() {
-      var css = new CSS(distp);
-      expect(css.getContent()).to.deep.equal(cssContent);
-      fs.unlinkSync(distp);
-      done();
-    });
-  });
 });
