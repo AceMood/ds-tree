@@ -26,3 +26,4 @@
 
 exports.circle = require('./lib/circle');
 exports.graph = require('./lib/graph');
+exports.vertex = require('./lib/vertex');
