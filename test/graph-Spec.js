@@ -25,7 +25,7 @@
  * @email zmike86@gmail.com
  */
 
-describe('Traverse graph', function() {
+describe('BFS traverse', function() {
 
   var expect = require('chai').expect;
   var Vertex = require('../lib/vertex');
